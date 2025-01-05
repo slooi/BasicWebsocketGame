@@ -19,7 +19,7 @@ const server = http.createServer(app)
 
 const wss = new ws.Server({ server })
 // ############################################
-// 					GAME Server
+// 					GAME Server INIT
 // ############################################
 const wsList: ws.WebSocket[] = []
 
@@ -52,3 +52,7 @@ app.get("/", (req, res) => {
 server.listen(PORT, () => {
 	console.log("listening on port " + PORT)
 })
+
+// ############################################
+// 					GAME LOOP
+// ############################################
