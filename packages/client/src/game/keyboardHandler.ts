@@ -1,10 +1,10 @@
+import { alphanumericKeys } from "./constants"
+
 const createKeyboardHandler = () => {
 	// #################################################
 	//				STATE	
 	// #################################################
-	const state = {
-
-	}
+	const state: Record<typeof alphanumericKeys[number], boolean | undefined> = {} as Record<typeof alphanumericKeys[number], boolean | undefined>
 
 	// #################################################
 	//				HANDLERS	
@@ -21,7 +21,6 @@ const createKeyboardHandler = () => {
 	// #################################################
 	window.addEventListener("keydown", keyDownHandler)
 	window.addEventListener("keyup", keyUpHandler)
-
 
 
 	// #################################################
