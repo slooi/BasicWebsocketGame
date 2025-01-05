@@ -2,14 +2,21 @@ const createKeyboardHandler = <T extends readonly string[]>(KEYS: T) => {
 	// #################################################
 	//				STATE	
 	// #################################################
-	const state: Record<typeof KEYS[number], boolean | undefined> = {} as Record<typeof KEYS[number], boolean | undefined>
-
+	const state: Record<T[number], boolean | undefined> = {} as Record<T[number], boolean | undefined>
+	let onChangeCallback: ((key: T[number], isDown: boolean) => any) | undefined;
 	// #################################################
 	//				HANDLERS	
 	// #################################################
-	const keyHandler = (e: KeyboardEvent, isDown: boolean) => {
-		if (isMovementKey(e.key)) state[e.key] = isDown
 
+
+	const onChange = (key: T[number], isDown: boolean) => {
+		onChangeCallback && onChangeCallback(key, isDown)
+	}
+	const keyHandler = (e: KeyboardEvent, isDown: boolean) => {
+		if (isMovementKey(e.key)) {
+			if (state[e.key] !== isDown) onChange(e.key, isDown)
+			state[e.key] = isDown
+		}
 		console.log(e.key, isDown)
 	}
 	const keyDownHandler = (e: KeyboardEvent) => keyHandler(e, true)
@@ -25,7 +32,7 @@ const createKeyboardHandler = <T extends readonly string[]>(KEYS: T) => {
 	// #################################################
 	//				MAIN FUNCTIONS	
 	// #################################################
-	function isKeyDown(key: typeof KEYS[number]) {
+	function isKeyDown(key: T[number]) {
 		return !!state[key]
 	}
 
@@ -33,7 +40,7 @@ const createKeyboardHandler = <T extends readonly string[]>(KEYS: T) => {
 	// #################################################
 	//				HELPER FUNCTIONS	
 	// #################################################
-	const isMovementKey = (key: string): key is typeof KEYS[number] => KEYS.includes(key as any)
+	const isMovementKey = (key: string): key is T[number] => KEYS.includes(key as any)
 	function cleanUp() {
 		window.removeEventListener("keydown", keyDownHandler)
 		window.removeEventListener("keyup", keyUpHandler)
@@ -43,7 +50,10 @@ const createKeyboardHandler = <T extends readonly string[]>(KEYS: T) => {
 	return {
 		state,
 		cleanUp,
-		isKeyDown
+		isKeyDown,
+		setOnChangeCallback: (cb: (key: T[number], isDown: boolean) => any) => {
+			onChangeCallback = cb
+		}
 	}
 }
 
