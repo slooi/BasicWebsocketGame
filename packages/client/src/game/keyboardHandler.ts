@@ -1,10 +1,10 @@
-import { alphanumericKeys } from "./constants"
+import { MOVEMENT_KEYS } from "./constants"
 
 const createKeyboardHandler = () => {
 	// #################################################
 	//				STATE	
 	// #################################################
-	const state: Record<typeof alphanumericKeys[number], boolean | undefined> = {} as Record<typeof alphanumericKeys[number], boolean | undefined>
+	const state: Record<typeof MOVEMENT_KEYS[number], boolean | undefined> = {} as Record<typeof MOVEMENT_KEYS[number], boolean | undefined>
 
 	// #################################################
 	//				HANDLERS	
