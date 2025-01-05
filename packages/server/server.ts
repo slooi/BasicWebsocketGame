@@ -18,6 +18,16 @@ const server = http.createServer(app)
 
 
 const wss = new ws.Server({ server })
+// ############################################
+// 					GAME Server
+// ############################################
+const wsList: ws.WebSocket[] = []
+
+
+
+// ############################################
+// 					FUNCTIONS
+// ############################################
 
 // ############################################
 // 					WEBSOCKET
@@ -25,6 +35,7 @@ const wss = new ws.Server({ server })
 
 wss.on("connection", ws => {
 	console.log("websocket connection established")
+	wsList.push(ws)
 	ws.on("close", ws => {
 		console.log("websocket connection closed")
 	})
