@@ -1,4 +1,9 @@
-const createKeyboardHandler = <T extends readonly string[]>(KEYS: T) => {
+import { VALID_KEYS } from "./constants";
+
+const createKeyboardHandler = <
+	T extends readonly (typeof VALID_KEYS[number])[]>(
+		KEYS: T
+	) => {
 	// #################################################
 	//				STATE	
 	// #################################################

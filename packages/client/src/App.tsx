@@ -5,9 +5,13 @@ import './App.css'
 import { createRenderer } from './game/renderer'
 import { createKeyboardHandler } from './game/keyboardHandler'
 import { MOVEMENT_KEYS } from './game/constants'
+import { isDOMComponent } from 'react-dom/test-utils'
 
 const ws = new WebSocket(`${location.origin.replace("http", "ws")}/ws`)
 const inputHandler = createKeyboardHandler(MOVEMENT_KEYS)
+inputHandler.setOnChangeCallback((key, isDown) => {
+
+})
 
 function App() {
   const canvasRef = useRef<HTMLCanvasElement>(null)
