@@ -1,15 +1,15 @@
-import { MOVEMENT_KEYS } from "./constants"
-
-const createKeyboardHandler = () => {
+const createKeyboardHandler = <T extends readonly string[]>(KEYS: T) => {
 	// #################################################
 	//				STATE	
 	// #################################################
-	const state: Record<typeof MOVEMENT_KEYS[number], boolean | undefined> = {} as Record<typeof MOVEMENT_KEYS[number], boolean | undefined>
+	const state: Record<typeof KEYS[number], boolean | undefined> = {} as Record<typeof KEYS[number], boolean | undefined>
 
 	// #################################################
 	//				HANDLERS	
 	// #################################################
 	const keyHandler = (e: KeyboardEvent, isDown: boolean) => {
+		if (isMovementKey(e.key)) state[e.key] = isDown
+
 		console.log(e.key, isDown)
 	}
 	const keyDownHandler = (e: KeyboardEvent) => keyHandler(e, true)
@@ -22,10 +22,18 @@ const createKeyboardHandler = () => {
 	window.addEventListener("keydown", keyDownHandler)
 	window.addEventListener("keyup", keyUpHandler)
 
+	// #################################################
+	//				MAIN FUNCTIONS	
+	// #################################################
+	function isKeyDown(key: typeof KEYS[number]) {
+		return !!state[key]
+	}
+
 
 	// #################################################
-	//				FUNCTIONS	
+	//				HELPER FUNCTIONS	
 	// #################################################
+	const isMovementKey = (key: string): key is typeof KEYS[number] => KEYS.includes(key as any)
 	function cleanUp() {
 		window.removeEventListener("keydown", keyDownHandler)
 		window.removeEventListener("keyup", keyUpHandler)
@@ -34,7 +42,8 @@ const createKeyboardHandler = () => {
 
 	return {
 		state,
-		cleanUp
+		cleanUp,
+		isKeyDown
 	}
 }
 
