@@ -1,45 +1,22 @@
 import express from "Express"
 import ws from "ws"
 import http from "http"
+import { createGameServer } from "./gameServer"
 
 
 // ############################################
 // 					CONSTANTS
 // ############################################
-
 const PORT = 8085
 
 // ############################################
 // 					SETUP
 // ############################################
-
 const app = express()
 const server = http.createServer(app)
 
 
 const wss = new ws.Server({ server })
-// ############################################
-// 					GAME Server INIT
-// ############################################
-const wsList: ws.WebSocket[] = []
-
-
-
-// ############################################
-// 					FUNCTIONS
-// ############################################
-
-// ############################################
-// 					WEBSOCKET
-// ############################################
-
-wss.on("connection", ws => {
-	console.log("websocket connection established")
-	wsList.push(ws)
-	ws.on("close", ws => {
-		console.log("websocket connection closed")
-	})
-})
 
 // ############################################
 // 					HTTP/APP SERVER
@@ -54,5 +31,6 @@ server.listen(PORT, () => {
 })
 
 // ############################################
-// 					GAME LOOP
+// 					GAME SERVER
 // ############################################
+createGameServer(wss)
