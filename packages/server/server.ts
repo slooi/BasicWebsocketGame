@@ -21,6 +21,9 @@ const wss = new ws.Server({ server })
 
 wss.on("connection", ws => {
 	console.log("websocket connection established")
+	ws.on("close", ws => {
+		console.log("websocket connection closed")
+	})
 })
 
 app.get("/", (req, res) => {
