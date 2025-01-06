@@ -16,7 +16,7 @@ export const createGameServer = (wss: ws.Server<typeof ws, typeof http.IncomingM
     // ############################################
     // 					INITIALIZATION
     // ############################################
-    const playerList: Connection[] = []
+    const connectionList: Connection[] = []
 
     // ############################################
     // 					Connection
@@ -42,10 +42,10 @@ export const createGameServer = (wss: ws.Server<typeof ws, typeof http.IncomingM
     // 					FUNCTIONS
     // ############################################
     function removePlayer(playerId: number) {
-        console.log("BEFORE\t", playerList.map(p => p.id))
-        const index = playerList.findIndex(p => p.id === playerId)
-        playerList.splice(index)
-        console.log("AFTER\t", playerList.map(p => p.id))
+        console.log("BEFORE\t", connectionList.map(p => p.id))
+        const index = connectionList.findIndex(p => p.id === playerId)
+        connectionList.splice(index)
+        console.log("AFTER\t", connectionList.map(p => p.id))
     }
 
     // ############################################
@@ -54,9 +54,9 @@ export const createGameServer = (wss: ws.Server<typeof ws, typeof http.IncomingM
     const wsConnectionHandler = (ws: ws) => {
         console.log("websocket connection established")
         const player = new Connection(ws)
-        playerList.push(player)
+        connectionList.push(player)
 
-        console.log("playerList", playerList.map(player => player.id))
+        console.log("connectionList", connectionList.map(player => player.id))
         ws.on("close", () => {
             removePlayer(player.id)
             console.log("websocket connection closed")
