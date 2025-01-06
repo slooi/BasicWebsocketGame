@@ -9,6 +9,7 @@ export const createGameClient = (canvas: HTMLCanvasElement) => {
 	// 					INIT
 	// ############################################
 	const renderer = createRenderer(canvas)
+	let requestAnimationFrameId: number | undefined = undefined
 
 	const ws = new WebSocket(`${location.origin.replace("http", "ws")}/ws`)
 	const inputHandler = createKeyboardHandler(MOVEMENT_KEYS)
@@ -23,6 +24,7 @@ export const createGameClient = (canvas: HTMLCanvasElement) => {
 	// 					FUNCTIONS
 	// ############################################
 	function cleanUp() {
+		requestAnimationFrameId && cancelAnimationFrame(requestAnimationFrameId)
 		inputHandler.cleanUp()
 		inputHandler.setOnChangeCallback(undefined) //!@#!@# important
 	}
@@ -42,7 +44,7 @@ export const createGameClient = (canvas: HTMLCanvasElement) => {
 			lastDate = nowDate - delta % FPS_INTERVAL
 			actualGameLoop()
 		}
-		requestAnimationFrame(gameLoop)
+		requestAnimationFrameId = requestAnimationFrame(gameLoop) // !@#!@#!@# REMEMBER TO UPDATE ID
 	}
 
 	// ############################################
@@ -50,6 +52,12 @@ export const createGameClient = (canvas: HTMLCanvasElement) => {
 	// ############################################
 	return {
 		cleanUp,
-		gameLoop
+		gameLoop: () => {
+			if (requestAnimationFrameId === undefined) {
+				requestAnimationFrameId = requestAnimationFrame(gameLoop)
+			} else {
+				throw new Error("requestAnimationFrameId is not undefined for some reason!")
+			}
+		}
 	}
 }
