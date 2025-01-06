@@ -124,10 +124,10 @@ const createRenderer = (canvas: HTMLCanvasElement) => {
 	// #################################################
 	//				FUNCTIONS	
 	// #################################################
-	const renderWithoutClear = (numberOfShapes: number) => {
+	const renderWithoutClear = (xyFloat32Array: number[]) => {
 		// console.log("render called!")
-		gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([0, 0, 1, 0]), gl.STATIC_DRAW)
-		gl.drawArrays(gl.POINTS, 0, numberOfShapes + 1)
+		gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(xyFloat32Array), gl.STATIC_DRAW)
+		gl.drawArrays(gl.POINTS, 0, xyFloat32Array.length / 2)
 	}
 	const clear = () => {
 		gl.clear(gl.COLOR_BUFFER_BIT)
