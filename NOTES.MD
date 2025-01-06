@@ -2,6 +2,7 @@
 
 -   use JSON for faster prototyping
 -   identify in the beginning what data will be replicated on the server.
+-   Create a network abstraction to parse network data safely and to clearly separate concerns
 
 ## Information to send to server (client => server)
 
