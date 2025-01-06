@@ -96,13 +96,17 @@ export const createGameServer = (wss: ws.Server<typeof ws, typeof http.IncomingM
 
     const gameTick = () => {
         // Update loop
-        const dataToSend: ServerClientTickPayload = []
         for (const [id, player] of playerList) {
             for (const [id, player] of playerList.entries()) {
                 player.update()
             }
-            dataToSend.push([player.id, ...player.position])
             console.log(id, "\t", player.position, "\t", player.keyboardInput)
+        }
+
+        // Gather data
+        const dataToSend: ServerClientTickPayload = []
+        for (const [id, player] of playerList) {
+            dataToSend.push([player.id, ...player.position])
         }
 
         // Send data
