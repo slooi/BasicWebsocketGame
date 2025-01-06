@@ -1,4 +1,4 @@
-import { VALID_KEYS } from "./constants";
+import { VALID_KEYS } from "@game/shared/constants";
 
 const createKeyboardHandler = <
 	T extends readonly (typeof VALID_KEYS[number])[]>(
