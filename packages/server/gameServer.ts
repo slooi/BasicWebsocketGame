@@ -24,7 +24,7 @@ export const createGameServer = (wss: ws.Server<typeof ws, typeof http.IncomingM
     // ############################################
 
     class Player {
-        static cumulativePlayers: number = 0
+        static cumulativePlayers: number = 0        //!@#!@#!@# could potentially cause issues long term with abusers
         id: number
         ws: ws.WebSocket
         constructor(ws: ws.WebSocket) {
@@ -33,6 +33,15 @@ export const createGameServer = (wss: ws.Server<typeof ws, typeof http.IncomingM
         }
     }
 
+    // ############################################
+    // 					FUNCTIONS
+    // ############################################
+    function removePlayer(playerId: number) {
+        console.log("BEFORE\t", playerList.map(p => p.id))
+        const index = playerList.findIndex(p => p.id === playerId)
+        playerList.splice(index)
+        console.log("AFTER\t", playerList.map(p => p.id))
+    }
 
     // ############################################
     // 					Handlers
@@ -42,8 +51,9 @@ export const createGameServer = (wss: ws.Server<typeof ws, typeof http.IncomingM
         const player = new Player(ws)
         playerList.push(player)
 
-        console.log("playerList", playerList)
-        ws.on("close", ws => {
+        console.log("playerList", playerList.map(player => player.id))
+        ws.on("close", () => {
+            removePlayer(player.id)
             console.log("websocket connection closed")
         })
     }
