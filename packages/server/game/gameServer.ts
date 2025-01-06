@@ -25,17 +25,26 @@ export const createGameServer = (wss: ws.Server<typeof ws, typeof http.IncomingM
     class Player {
         static cumulativePlayers: number = 0        //!@#!@#!@# could potentially cause issues long term with abusers
         readonly id: number
+        static speed: number = 1
         ws: ws.WebSocket
         keyboardInput: Record<typeof MOVEMENT_KEYS[number], boolean>
+        position: [number, number]
         constructor(ws: ws.WebSocket) {
             this.id = Player.cumulativePlayers++
             this.ws = ws
             this.keyboardInput = {} as Record<typeof MOVEMENT_KEYS[number], boolean>
             MOVEMENT_KEYS.forEach(key => this.keyboardInput[key] = false)
+            this.position = [0, 0]
         }
         updateKeyboardInput(keyboardInput: Record<typeof MOVEMENT_KEYS[number], boolean>) {
             console.log(this.keyboardInput)
             MOVEMENT_KEYS.forEach(k => this.keyboardInput[k] = keyboardInput[k])
+        }
+        update() {
+            if (this.keyboardInput["a"]) this.position[0] -= Player.speed
+            if (this.keyboardInput["d"]) this.position[0] += Player.speed
+            if (this.keyboardInput["w"]) this.position[1] -= Player.speed
+            if (this.keyboardInput["s"]) this.position[1] += Player.speed
         }
     }
 
@@ -83,9 +92,15 @@ export const createGameServer = (wss: ws.Server<typeof ws, typeof http.IncomingM
     // ############################################
 
     const gameTick = () => {
-        for (const [id, connection] of playerList) {
-            console.log(id, "\t\t", connection.keyboardInput)
+        // Update loop
+        for (const [id, player] of playerList) {
+            for (const [id, player] of playerList.entries()) {
+                player.update()
+            }
+            console.log(id, "\t", player.position, "\t", player.keyboardInput)
         }
+
+        // Send data
     }
 
     // ############################################
