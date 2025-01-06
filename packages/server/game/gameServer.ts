@@ -101,6 +101,9 @@ export const createGameServer = (wss: ws.Server<typeof ws, typeof http.IncomingM
         }
 
         // Send data
+        for (const [id, player] of playerList) {
+            player.ws.send(JSON.stringify(playerList))
+        }
     }
 
     // ############################################
