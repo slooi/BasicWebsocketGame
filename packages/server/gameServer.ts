@@ -1,6 +1,6 @@
 import ws from "ws"
 import http from "http"
-import { FPS_INTERVAL } from "@game/shared"
+import { FPS_INTERVAL } from "@game/shared/constants"
 
 
 // ############################################
@@ -31,6 +31,12 @@ export const createGameServer = (wss: ws.Server<typeof ws, typeof http.IncomingM
             this.ws = ws
         }
     }
+
+    // ############################################
+    // 					Player
+    // ############################################
+
+
 
     // ############################################
     // 					FUNCTIONS
