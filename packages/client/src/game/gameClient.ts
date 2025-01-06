@@ -17,7 +17,12 @@ export const createGameClient = (canvas: HTMLCanvasElement) => {
 		console.log("data", data)
 		ws.send(data)
 	})
-
+	// ############################################
+	// 					WEBSOCKET HANDLER
+	// ############################################
+	ws.addEventListener("message", e => {
+		console.log("message", e.data)
+	})
 
 	// ############################################
 	// 					FUNCTIONS
