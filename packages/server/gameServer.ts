@@ -56,6 +56,9 @@ export const createGameServer = (wss: ws.Server<typeof ws, typeof http.IncomingM
             removePlayer(player.id)
             console.log("websocket connection closed")
         })
+        ws.onmessage = (e) => {
+            console.log(" e.type,e.data", e.type, JSON.parse(e.data as string))
+        }
     }
     // ############################################
     // 					Listeners
