@@ -1,6 +1,7 @@
 import ws from "ws"
 import http from "http"
 import { FPS_INTERVAL, MOVEMENT_KEYS } from "@game/shared/constants"
+import { ServerClientTickPayload } from "@game/shared/types"
 
 
 // ############################################
@@ -95,7 +96,7 @@ export const createGameServer = (wss: ws.Server<typeof ws, typeof http.IncomingM
 
     const gameTick = () => {
         // Update loop
-        const dataToSend: [number, number, number][] = []
+        const dataToSend: ServerClientTickPayload = []
         for (const [id, player] of playerList) {
             for (const [id, player] of playerList.entries()) {
                 player.update()

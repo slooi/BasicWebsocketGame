@@ -1,0 +1,1 @@
+export type ServerClientTickPayload = [number, number, number][]
