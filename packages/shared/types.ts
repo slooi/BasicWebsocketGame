@@ -1,1 +1,2 @@
-export type ServerClientTickPayload = [number, number, number][]
+export type ServerClientTickPayload = [PlayerId, number, number][]
+interface PlayerId extends Number { }
