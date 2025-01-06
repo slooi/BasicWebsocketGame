@@ -7,15 +7,19 @@ export const createGameClient = (canvas: HTMLCanvasElement) => {
 	// ############################################
 	// 					INIT
 	// ############################################
-	const renderer = createRenderer(canvas)
+	// basic
 	let requestAnimationFrameId: number | undefined = undefined
 
+	// Objects
+	const renderer = createRenderer(canvas)
 	const ws = new WebSocket(`${location.origin.replace("http", "ws")}/ws`)
 	const inputHandler = createKeyboardHandler(MOVEMENT_KEYS)
-	inputHandler.setOnChangeCallback((key, isDown) => {
-		const data = JSON.stringify(inputHandler.getState())
-		ws.send(data)
-	})
+
+	// ############################################
+	// 					CALLBACKS
+	// ############################################
+	inputHandler.setOnChangeCallback(() => ws.send(JSON.stringify(inputHandler.getState())))
+
 	// ############################################
 	// 					WEBSOCKET HANDLER
 	// ############################################
