@@ -2,13 +2,13 @@
 import { createKeyboardHandler } from './keyboardHandler'
 import { MOVEMENT_KEYS } from './constants'
 import { createRenderer } from './renderer'
+import { FPS_INTERVAL } from '@game/shared'
 
 export const createGameClient = (canvas: HTMLCanvasElement) => {
 	// ############################################
 	// 					INIT
 	// ############################################
 	const renderer = createRenderer(canvas)
-	renderer.render()
 
 	const ws = new WebSocket(`${location.origin.replace("http", "ws")}/ws`)
 	const inputHandler = createKeyboardHandler(MOVEMENT_KEYS)
@@ -24,12 +24,32 @@ export const createGameClient = (canvas: HTMLCanvasElement) => {
 	// ############################################
 	function cleanUp() {
 		inputHandler.cleanUp()
-		inputHandler.setOnChangeCallback(undefined)
+		inputHandler.setOnChangeCallback(undefined) //!@#!@# important
 	}
+
 	// ############################################
-	// 					PLAYER
+	// 					MAIN LOOP
+	// ############################################
+	function actualGameLoop() {
+		renderer.render(1)
+	}
+
+	let lastDate = Date.now()
+	function gameLoop() {
+		const nowDate = Date.now()
+		const delta = nowDate - lastDate
+		if (delta > FPS_INTERVAL) {
+			lastDate = nowDate - delta % FPS_INTERVAL
+			actualGameLoop()
+		}
+		requestAnimationFrame(gameLoop)
+	}
+
+	// ############################################
+	// 					API
 	// ############################################
 	return {
-		cleanUp
+		cleanUp,
+		gameLoop
 	}
 }

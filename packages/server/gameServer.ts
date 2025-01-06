@@ -1,12 +1,11 @@
 import ws from "ws"
 import http from "http"
+import { FPS_INTERVAL } from "@game/shared"
 
 
 // ############################################
 // 					CONSTANTS
 // ############################################
-const FPS = 30
-const FPS_INTERVAL = 1000 / FPS
 
 
 // ############################################

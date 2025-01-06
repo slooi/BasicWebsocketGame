@@ -10,6 +10,9 @@ importers:
 
   packages/client:
     dependencies:
+      '@game/shared':
+        specifier: workspace:^
+        version: link:../shared
       react:
         specifier: ^18.3.1
         version: 18.3.1
@@ -53,6 +56,9 @@ importers:
 
   packages/server:
     dependencies:
+      '@game/shared':
+        specifier: workspace:^
+        version: link:../shared
       express:
         specifier: ^4.21.2
         version: 4.21.2

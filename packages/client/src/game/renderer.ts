@@ -38,7 +38,7 @@ const createRenderer = (canvas: HTMLCanvasElement) => {
 	// #################################################
 	//				INIT GLOBAL CONTEXT SETTINGS
 	// #################################################
-	gl.clearColor(0.9, .9, .9, 1)
+	gl.clearColor(0.5, .5, .5, 1)
 	gl.clear(gl.COLOR_BUFFER_BIT)
 
 
@@ -75,7 +75,6 @@ const createRenderer = (canvas: HTMLCanvasElement) => {
 		// Buffer 
 		const buffer = gl.createBuffer()
 		gl.bindBuffer(gl.ARRAY_BUFFER, buffer)
-		gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([0, 0, 1, 1, 0, 1]), gl.STATIC_DRAW)
 
 		// Buffer's format
 		const location = attributeLocations["a_Position"]//!@#!@#!@# make it more safe in the future by creating a "MODEL"
@@ -125,9 +124,10 @@ const createRenderer = (canvas: HTMLCanvasElement) => {
 	// #################################################
 	//				FUNCTIONS	
 	// #################################################
-	const render = () => {
+	const render = (numberOfShapes: number) => {
 		console.log("render called!")
-		gl.drawArrays(gl.POINTS, 0, 1)
+		gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([0, 0]), gl.STATIC_DRAW)
+		gl.drawArrays(gl.POINTS, 0, numberOfShapes)
 	}
 
 	// #################################################

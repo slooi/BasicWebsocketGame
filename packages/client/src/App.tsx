@@ -12,6 +12,7 @@ function App() {
     if (!canvasRef.current) throw new Error("No canvas reference found! D:")
 
     const gameClient = createGameClient(canvasRef.current)
+    gameClient.gameLoop()
     return () => gameClient.cleanUp()
   }, [])
 
