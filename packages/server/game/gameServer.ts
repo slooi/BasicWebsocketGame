@@ -44,8 +44,8 @@ export const createGameServer = (wss: ws.Server<typeof ws, typeof http.IncomingM
         update() {
             if (this.keyboardInput["a"]) this.position[0] -= Player.speed
             if (this.keyboardInput["d"]) this.position[0] += Player.speed
-            if (this.keyboardInput["w"]) this.position[1] -= Player.speed
-            if (this.keyboardInput["s"]) this.position[1] += Player.speed
+            if (this.keyboardInput["w"]) this.position[1] += Player.speed
+            if (this.keyboardInput["s"]) this.position[1] -= Player.speed
         }
     }
 
