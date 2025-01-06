@@ -68,6 +68,8 @@ export const createGameServer = (wss: ws.Server<typeof ws, typeof http.IncomingM
         console.log("websocket connection established")
         const player = new Player(ws)
         playerList.set(player.id, player)
+        ws.send(player.id)
+
         ws.on("close", () => {
             removePlayer(player.id)
             console.log("websocket connection closed")
