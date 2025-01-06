@@ -1,7 +1,7 @@
 import express from "Express"
 import ws from "ws"
 import http from "http"
-import { createGameServer } from "./gameServer"
+import { createGameServer } from "./game/gameServer"
 
 
 // ############################################
