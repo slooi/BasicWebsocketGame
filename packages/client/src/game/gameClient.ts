@@ -14,7 +14,6 @@ export const createGameClient = (canvas: HTMLCanvasElement) => {
 	const inputHandler = createKeyboardHandler(MOVEMENT_KEYS)
 	inputHandler.setOnChangeCallback((key, isDown) => {
 		const data = JSON.stringify(inputHandler.getState())
-		console.log("data", data)
 		ws.send(data)
 	})
 	// ############################################

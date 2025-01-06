@@ -125,7 +125,7 @@ const createRenderer = (canvas: HTMLCanvasElement) => {
 	//				FUNCTIONS	
 	// #################################################
 	const renderWithoutClear = (numberOfShapes: number) => {
-		console.log("render called!")
+		// console.log("render called!")
 		gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([0, 0, 1, 0]), gl.STATIC_DRAW)
 		gl.drawArrays(gl.POINTS, 0, numberOfShapes + 1)
 	}
