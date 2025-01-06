@@ -27,22 +27,25 @@ export const createGameClient = (canvas: HTMLCanvasElement) => {
 	// ############################################
 	// 					WEBSOCKET HANDLER
 	// ############################################
-	ws.addEventListener("message", e => {
-		console.log("message", e.data)
+
+	const wsMessageHandler = (e: MessageEvent<any>) => {
+		// console.log("message", e.data)
 		const data = JSON.parse(e.data)
 		if (hasReceivedFirstMessage) {
 			serverClientTickPayload = data
-			console.log("serverClientTickPayload", serverClientTickPayload)
+			// console.log("serverClientTickPayload", serverClientTickPayload)
 		} else {
 			hasReceivedFirstMessage = true
 			playerId = data
 		}
-	})
+	}
+	ws.addEventListener("message", wsMessageHandler)
 
 	// ############################################
 	// 					FUNCTIONS
 	// ############################################
 	function cleanUp() {
+		ws.removeEventListener("message", wsMessageHandler) //not sure if this one is necessary
 		ws.close()
 		requestAnimationFrameId && cancelAnimationFrame(requestAnimationFrameId)
 		inputHandler.cleanUp()
@@ -54,7 +57,9 @@ export const createGameClient = (canvas: HTMLCanvasElement) => {
 	// ############################################
 	function actualGameLoop() {
 		renderer.clear()
-		renderer.renderWithoutClear([0, 0, 0.1, 1.0])
+		const renderData = serverClientTickPayload.map(playerRenderData => [playerRenderData[1] / 300, playerRenderData[2] / 300]).flat()
+		console.log("renderData", renderData)
+		renderer.renderWithoutClear(renderData)
 	}
 
 	let lastDate = Date.now()
