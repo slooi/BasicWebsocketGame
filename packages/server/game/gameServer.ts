@@ -1,6 +1,6 @@
 import ws from "ws"
 import http from "http"
-import { FPS_INTERVAL } from "@game/shared/constants"
+import { FPS_INTERVAL, MOVEMENT_KEYS } from "@game/shared/constants"
 
 
 // ############################################
@@ -16,19 +16,26 @@ export const createGameServer = (wss: ws.Server<typeof ws, typeof http.IncomingM
     // ############################################
     // 					INITIALIZATION
     // ############################################
-    const connectionList: Connection[] = []
+    const playerList = new Map<number, Player>()
 
     // ############################################
-    // 					Connection
+    // 					Player
     // ############################################
 
-    class Connection {
+    class Player {
         static cumulativePlayers: number = 0        //!@#!@#!@# could potentially cause issues long term with abusers
-        id: number
+        readonly id: number
         ws: ws.WebSocket
+        keyboardInput: Record<typeof MOVEMENT_KEYS[number], boolean>
         constructor(ws: ws.WebSocket) {
-            this.id = Connection.cumulativePlayers++
+            this.id = Player.cumulativePlayers++
             this.ws = ws
+            this.keyboardInput = {} as Record<typeof MOVEMENT_KEYS[number], boolean>
+            MOVEMENT_KEYS.forEach(key => this.keyboardInput[key] = false)
+        }
+        updateKeyboardInput(keyboardInput: Record<typeof MOVEMENT_KEYS[number], boolean>) {
+            console.log(this.keyboardInput)
+            MOVEMENT_KEYS.forEach(k => this.keyboardInput[k] = keyboardInput[k])
         }
     }
 
@@ -42,10 +49,7 @@ export const createGameServer = (wss: ws.Server<typeof ws, typeof http.IncomingM
     // 					FUNCTIONS
     // ############################################
     function removePlayer(playerId: number) {
-        console.log("BEFORE\t", connectionList.map(p => p.id))
-        const index = connectionList.findIndex(p => p.id === playerId)
-        connectionList.splice(index)
-        console.log("AFTER\t", connectionList.map(p => p.id))
+        playerList.delete(playerId)
     }
 
     // ############################################
@@ -53,17 +57,21 @@ export const createGameServer = (wss: ws.Server<typeof ws, typeof http.IncomingM
     // ############################################
     const wsConnectionHandler = (ws: ws) => {
         console.log("websocket connection established")
-        const player = new Connection(ws)
-        connectionList.push(player)
-
-        console.log("connectionList", connectionList.map(player => player.id))
+        const player = new Player(ws)
+        playerList.set(player.id, player)
         ws.on("close", () => {
             removePlayer(player.id)
             console.log("websocket connection closed")
         })
-        ws.onmessage = (e) => {
-            console.log(" e.type,e.data", e.type, JSON.parse(e.data as string))
-        }
+        ws.on("message", rawData => {
+            const data = rawData.toString()
+            try {
+                const playerControls = JSON.parse(data) as Record<typeof MOVEMENT_KEYS[number], boolean> //!@#!@#!@#!@#!@#
+                player.updateKeyboardInput(playerControls)
+            } catch (err) {
+                throw new Error("ERROR: UNEXPECTED JSON")
+            }
+        })
     }
     // ############################################
     // 					Listeners
@@ -75,7 +83,9 @@ export const createGameServer = (wss: ws.Server<typeof ws, typeof http.IncomingM
     // ############################################
 
     const gameTick = () => {
-
+        for (const [id, connection] of playerList) {
+            console.log(id, "\t\t", connection.keyboardInput)
+        }
     }
 
     // ############################################
