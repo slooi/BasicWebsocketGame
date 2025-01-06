@@ -23,6 +23,7 @@ export const createGameClient = (canvas: HTMLCanvasElement) => {
 	// 					FUNCTIONS
 	// ############################################
 	function cleanUp() {
+		ws.close()
 		requestAnimationFrameId && cancelAnimationFrame(requestAnimationFrameId)
 		inputHandler.cleanUp()
 		inputHandler.setOnChangeCallback(undefined) //!@#!@# important
