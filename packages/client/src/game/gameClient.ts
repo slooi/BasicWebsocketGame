@@ -1,8 +1,7 @@
 
 import { createKeyboardHandler } from './keyboardHandler'
-import { MOVEMENT_KEYS } from './constants'
 import { createRenderer } from './renderer'
-import { FPS_INTERVAL } from '@game/shared/constants'
+import { FPS_INTERVAL, MOVEMENT_KEYS } from '@game/shared/constants'
 
 export const createGameClient = (canvas: HTMLCanvasElement) => {
 	// ############################################
