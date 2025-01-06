@@ -38,7 +38,7 @@ const createRenderer = (canvas: HTMLCanvasElement) => {
 	// #################################################
 	//				INIT GLOBAL CONTEXT SETTINGS
 	// #################################################
-	gl.clearColor(0.5, .5, .5, 1)
+	gl.clearColor(0.9, .9, .9, 1)
 	gl.clear(gl.COLOR_BUFFER_BIT)
 
 
@@ -124,12 +124,14 @@ const createRenderer = (canvas: HTMLCanvasElement) => {
 	// #################################################
 	//				FUNCTIONS	
 	// #################################################
-	const render = (numberOfShapes: number) => {
+	const renderWithoutClear = (numberOfShapes: number) => {
 		console.log("render called!")
-		gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([0, 0]), gl.STATIC_DRAW)
-		gl.drawArrays(gl.POINTS, 0, numberOfShapes)
+		gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([0, 0, 1, 0]), gl.STATIC_DRAW)
+		gl.drawArrays(gl.POINTS, 0, numberOfShapes + 1)
 	}
-
+	const clear = () => {
+		gl.clear(gl.COLOR_BUFFER_BIT)
+	}
 	// #################################################
 	//				TESTING	
 	// #################################################
@@ -138,7 +140,8 @@ const createRenderer = (canvas: HTMLCanvasElement) => {
 	//				API	
 	// #################################################
 	const api = {
-		render
+		renderWithoutClear,
+		clear
 	}
 	return api
 }

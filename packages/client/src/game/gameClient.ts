@@ -33,7 +33,8 @@ export const createGameClient = (canvas: HTMLCanvasElement) => {
 	// 					MAIN LOOP
 	// ############################################
 	function actualGameLoop() {
-		renderer.render(1)
+		renderer.clear()
+		renderer.renderWithoutClear(1)
 	}
 
 	let lastDate = Date.now()
