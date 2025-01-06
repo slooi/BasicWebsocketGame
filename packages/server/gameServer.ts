@@ -16,18 +16,18 @@ export const createGameServer = (wss: ws.Server<typeof ws, typeof http.IncomingM
     // ############################################
     // 					INITIALIZATION
     // ############################################
-    const playerList: Player[] = []
+    const playerList: Connection[] = []
 
     // ############################################
-    // 					PLAYER
+    // 					Connection
     // ############################################
 
-    class Player {
+    class Connection {
         static cumulativePlayers: number = 0        //!@#!@#!@# could potentially cause issues long term with abusers
         id: number
         ws: ws.WebSocket
         constructor(ws: ws.WebSocket) {
-            this.id = Player.cumulativePlayers++
+            this.id = Connection.cumulativePlayers++
             this.ws = ws
         }
     }
@@ -47,7 +47,7 @@ export const createGameServer = (wss: ws.Server<typeof ws, typeof http.IncomingM
     // ############################################
     const wsConnectionHandler = (ws: ws) => {
         console.log("websocket connection established")
-        const player = new Player(ws)
+        const player = new Connection(ws)
         playerList.push(player)
 
         console.log("playerList", playerList.map(player => player.id))
