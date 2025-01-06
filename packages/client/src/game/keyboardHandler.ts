@@ -7,8 +7,10 @@ const createKeyboardHandler = <
 	// #################################################
 	//				STATE	
 	// #################################################
-	const state: Record<T[number], boolean | undefined> = {} as Record<T[number], boolean | undefined>
-	let onChangeCallback: ((key: T[number], isDown: boolean) => any) | undefined;
+	const state: Record<T[number], boolean> = {} as Record<T[number], boolean>
+	KEYS.forEach(key => state[key as T[number]] = false)
+
+	let onChangeCallback: undefined | ((key: T[number], isDown: boolean) => any);
 	// #################################################
 	//				HANDLERS	
 	// #################################################
@@ -19,8 +21,9 @@ const createKeyboardHandler = <
 	}
 	const keyHandler = (e: KeyboardEvent, isDown: boolean) => {
 		if (isMovementKey(e.key)) {
-			if (state[e.key] !== isDown) onChange(e.key, isDown)
+			const changeHasOccurred = state[e.key] !== isDown
 			state[e.key] = isDown
+			if (changeHasOccurred) onChange(e.key, isDown)
 		}
 		console.log(e.key, isDown)
 	}
@@ -38,9 +41,14 @@ const createKeyboardHandler = <
 	//				MAIN FUNCTIONS	
 	// #################################################
 	function isKeyDown(key: T[number]) {
-		return !!state[key]
+		return state[key]
 	}
-
+	function getState() {
+		return state
+	}
+	function setOnChangeCallback(cb: typeof onChangeCallback) {
+		onChangeCallback = cb
+	}
 
 	// #################################################
 	//				HELPER FUNCTIONS	
@@ -53,12 +61,10 @@ const createKeyboardHandler = <
 
 
 	return {
-		state,
+		getState,
 		cleanUp,
 		isKeyDown,
-		setOnChangeCallback: (cb: (key: T[number], isDown: boolean) => any) => {
-			onChangeCallback = cb
-		}
+		setOnChangeCallback
 	}
 }
 

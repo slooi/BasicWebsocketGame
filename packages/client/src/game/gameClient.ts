@@ -13,7 +13,9 @@ export const createGameClient = (canvas: HTMLCanvasElement) => {
 	const ws = new WebSocket(`${location.origin.replace("http", "ws")}/ws`)
 	const inputHandler = createKeyboardHandler(MOVEMENT_KEYS)
 	inputHandler.setOnChangeCallback((key, isDown) => {
-
+		const data = JSON.stringify(inputHandler.getState())
+		console.log("data", data)
+		ws.send(data)
 	})
 
 
@@ -22,6 +24,7 @@ export const createGameClient = (canvas: HTMLCanvasElement) => {
 	// ############################################
 	function cleanUp() {
 		inputHandler.cleanUp()
+		inputHandler.setOnChangeCallback(undefined)
 	}
 	// ############################################
 	// 					PLAYER
