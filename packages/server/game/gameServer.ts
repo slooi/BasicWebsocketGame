@@ -93,12 +93,12 @@ export const createGameServer = (wss: ws.Server<typeof ws, typeof http.IncomingM
     // ############################################
     // 					GAME TICK
     // ############################################
-
+    let stringifiedDataToSend = ""
     const gameTick = () => {
         // Update loop
         for (const [id, player] of playerList) {
             player.update()
-            console.log(id, "\t", player.position, "\t", player.keyboardInput)
+            // console.log(id, "\t", player.position, "\t", player.keyboardInput)
         }
 
         // Gather data
@@ -108,8 +108,9 @@ export const createGameServer = (wss: ws.Server<typeof ws, typeof http.IncomingM
         }
 
         // Send data
+        stringifiedDataToSend = JSON.stringify(dataToSend)
         for (const [id, player] of playerList) {
-            player.ws.send(JSON.stringify(dataToSend))
+            player.ws.send(stringifiedDataToSend)
         }
     }
 
