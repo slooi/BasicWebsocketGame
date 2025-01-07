@@ -1,6 +1,6 @@
 import ws from "ws"
 import http from "http"
-import { FPS_INTERVAL, MOVEMENT_KEYS } from "@game/shared/constants"
+import { SERVER_FPS_INTERVAL, MOVEMENT_KEYS } from "@game/shared/constants"
 import { ServerClientTickPayload } from "@game/shared/types"
 
 
@@ -26,7 +26,7 @@ export const createGameServer = (wss: ws.Server<typeof ws, typeof http.IncomingM
     class Player {
         static cumulativePlayers: number = 0        //!@#!@#!@# could potentially cause issues long term with abusers
         readonly id: number
-        static speed: number = 1
+        static speed: number = 10
         ws: ws.WebSocket
         keyboardInput: Record<typeof MOVEMENT_KEYS[number], boolean>
         position: [number, number]
@@ -97,9 +97,7 @@ export const createGameServer = (wss: ws.Server<typeof ws, typeof http.IncomingM
     const gameTick = () => {
         // Update loop
         for (const [id, player] of playerList) {
-            for (const [id, player] of playerList.entries()) {
-                player.update()
-            }
+            player.update()
             console.log(id, "\t", player.position, "\t", player.keyboardInput)
         }
 
@@ -121,8 +119,8 @@ export const createGameServer = (wss: ws.Server<typeof ws, typeof http.IncomingM
     const loop = () => {
         const nowTime = Date.now()
         const delta = nowTime - oldTime
-        if (delta > FPS_INTERVAL) {
-            oldTime = nowTime - delta % (FPS_INTERVAL) // We want the next tick to occur faster if this tick occurred later than usually. This method also prevent catasphroic correction (the game slowing down (<1x) due to high computational load before speeding up (>1x, potentially 5x speed) which would be bad in multiplayer games where users want to REACT to what's happening. The speeding up would mean they wouldn't be able to react in time or maybe using old player inputs. 
+        if (delta > SERVER_FPS_INTERVAL) {
+            oldTime = nowTime - delta % (SERVER_FPS_INTERVAL) // We want the next tick to occur faster if this tick occurred later than usually. This method also prevent catasphroic correction (the game slowing down (<1x) due to high computational load before speeding up (>1x, potentially 5x speed) which would be bad in multiplayer games where users want to REACT to what's happening. The speeding up would mean they wouldn't be able to react in time or maybe using old player inputs. 
             gameTick()
         }
         setImmediate(loop)

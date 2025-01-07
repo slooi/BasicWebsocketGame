@@ -1,7 +1,7 @@
 
 import { createKeyboardHandler } from './keyboardHandler'
 import { createRenderer } from './renderer'
-import { FPS_INTERVAL, MOVEMENT_KEYS } from '@game/shared/constants'
+import { CLIENT_FPS_INTERVAL, MOVEMENT_KEYS } from '@game/shared/constants'
 import { ServerClientTickPayload } from "@game/shared/types"
 
 export const createGameClient = (canvas: HTMLCanvasElement) => {
@@ -13,6 +13,7 @@ export const createGameClient = (canvas: HTMLCanvasElement) => {
 	let serverClientTickPayload: ServerClientTickPayload = []
 	let playerId: number | undefined = undefined
 	let hasReceivedFirstMessage = false
+	const renderData: number[] = []
 
 	// Objects
 	const renderer = createRenderer(canvas)
@@ -33,10 +34,12 @@ export const createGameClient = (canvas: HTMLCanvasElement) => {
 		const data = JSON.parse(e.data)
 		if (hasReceivedFirstMessage) {
 			serverClientTickPayload = data
+			console.log("serverClientTickPayload", serverClientTickPayload)
 			// console.log("serverClientTickPayload", serverClientTickPayload)
 		} else {
 			hasReceivedFirstMessage = true
 			playerId = data
+			console.log("playerId", playerId)
 		}
 	}
 	ws.addEventListener("message", wsMessageHandler)
@@ -57,7 +60,8 @@ export const createGameClient = (canvas: HTMLCanvasElement) => {
 	// ############################################
 	function actualGameLoop() {
 		renderer.clear()
-		const renderData = serverClientTickPayload.map(playerRenderData => [playerRenderData[1] / 300, playerRenderData[2] / 300]).flat()
+		renderData.length = 0
+		serverClientTickPayload.forEach(playerRenderData => renderData.push(playerRenderData[1] / 300, playerRenderData[2] / 300))
 		console.log("renderData", renderData)
 		renderer.renderWithoutClear(renderData)
 	}
@@ -66,8 +70,8 @@ export const createGameClient = (canvas: HTMLCanvasElement) => {
 	function gameLoop() {
 		const nowDate = Date.now()
 		const delta = nowDate - lastDate
-		if (delta > FPS_INTERVAL) {
-			lastDate = nowDate - delta % FPS_INTERVAL
+		if (delta > CLIENT_FPS_INTERVAL) {
+			lastDate = nowDate - delta % CLIENT_FPS_INTERVAL
 			actualGameLoop()
 		}
 		requestAnimationFrameId = requestAnimationFrame(gameLoop) // !@#!@#!@# REMEMBER TO UPDATE ID
