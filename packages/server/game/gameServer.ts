@@ -58,9 +58,8 @@ export const createGameServer = (wss: ws.Server<typeof ws, typeof http.IncomingM
     // ############################################
     // 					FUNCTIONS
     // ############################################
-    function removePlayer(playerId: number) {
-        playerList.delete(playerId)
-    }
+
+
 
     // ############################################
     // 					Handlers
@@ -72,7 +71,7 @@ export const createGameServer = (wss: ws.Server<typeof ws, typeof http.IncomingM
         ws.send(player.id)
 
         ws.on("close", () => {
-            removePlayer(player.id)
+            playerList.delete(player.id)
             console.log("websocket connection closed")
         })
         ws.on("message", rawData => {
