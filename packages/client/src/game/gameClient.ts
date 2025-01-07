@@ -34,12 +34,12 @@ export const createGameClient = (canvas: HTMLCanvasElement) => {
 		const data = JSON.parse(e.data)
 		if (hasReceivedFirstMessage) {
 			serverClientTickPayload = data
-			console.log("serverClientTickPayload", serverClientTickPayload)
+			// console.log("serverClientTickPayload", serverClientTickPayload)
 			// console.log("serverClientTickPayload", serverClientTickPayload)
 		} else {
 			hasReceivedFirstMessage = true
 			playerId = data
-			console.log("playerId", playerId)
+			// console.log("playerId", playerId)
 		}
 	}
 	ws.addEventListener("message", wsMessageHandler)
@@ -61,8 +61,8 @@ export const createGameClient = (canvas: HTMLCanvasElement) => {
 	function actualGameLoop() {
 		renderer.clear()
 		renderData.length = 0
-		serverClientTickPayload.forEach(playerRenderData => renderData.push(playerRenderData[1] / 300, playerRenderData[2] / 300))
-		console.log("renderData", renderData)
+		serverClientTickPayload.forEach(playerRenderData => renderData.push(playerRenderData[1], playerRenderData[2]))
+		// console.log("renderData", renderData)
 		renderer.renderWithoutClear(renderData)
 	}
 
