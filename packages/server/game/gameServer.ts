@@ -20,21 +20,15 @@ export const createGameServer = (wss: ws.Server<typeof ws, typeof http.IncomingM
     // ############################################
     const wsConnectionHandler = (ws: ws) => {
         console.log("websocket connection established")
-        const player = new Player(ws)
-        world.addPlayer(player)
+        const connectionId = networkManager.createConnection(ws)
 
         ws.on("close", () => {
-            world.removePlayer(player)
             console.log("websocket connection closed")
+            networkManager.removeConnection(connectionId)
         })
         ws.on("message", rawData => {
-            const data = rawData.toString()
-            try {
-                const playerControls = JSON.parse(data) as Record<typeof MOVEMENT_KEYS[number], boolean> //!@#!@#!@#!@#!@#
-                player.updateKeyboardInput(playerControls)
-            } catch (err) {
-                throw new Error("ERROR: UNEXPECTED JSON")
-            }
+            console.log("websocket message")
+            networkManager.forwardMessage(connectionId, rawData)
         })
     }
     // ############################################
@@ -45,15 +39,70 @@ export const createGameServer = (wss: ws.Server<typeof ws, typeof http.IncomingM
     world.startLoop()
 }
 
+class Connection {
+    ws: ws.WebSocket
+    id: number
+
+    keyboardInput: Record<typeof MOVEMENT_KEYS[number], boolean>
+    constructor(ws: ws.WebSocket, id: number) {
+        this.ws = ws
+        this.id = id
+        this.keyboardInput = {} as Record<typeof MOVEMENT_KEYS[number], boolean>
+        MOVEMENT_KEYS.forEach(key => this.keyboardInput[key] = false)
+    }
+    updateKeyboardInput(keyboardInput: Record<typeof MOVEMENT_KEYS[number], boolean>) {
+        console.log(this.keyboardInput)
+        MOVEMENT_KEYS.forEach(k => this.keyboardInput[k] = keyboardInput[k])
+    }
+}
+
 class NetworkManager {
-    onConnectionCallback: ((ws: ws.WebSocket) => any) | undefined
-    onCloseCallback: ((ws: ws.WebSocket) => any) | undefined
-    onMessageCallback: ((ws: ws.WebSocket, rawData: ws.RawData) => any) | undefined
+    static cumulativeConnections: number = 0
+    connections: Map<number, Connection>
+    onConnectionCallback: ((connection: Connection) => any) | undefined
+    onCloseCallback: ((connection: Connection) => any) | undefined
+    onMessageCallback: ((connection: Connection, stringifiedData: string) => any) | undefined
     constructor() {
+        this.connections = new Map()
         this.onConnectionCallback = undefined
         this.onCloseCallback = undefined
         this.onMessageCallback = undefined
     }
+
+    // 
+    createConnection(ws: ws.WebSocket) {
+        const connectionId = NetworkManager.cumulativeConnections++
+        const connection = new Connection(ws, connectionId)
+        this.connections.set(connectionId, connection)
+        console.log("ADDED CONNECTION this.connections", this.connections)
+        this.onConnectionCallback && this.onConnectionCallback(connection)
+        return connectionId
+    }
+    removeConnection(id: number) {
+        console.log("`1` this.connections", this.connections)
+        const connection = this.connections.get(id)
+        console.log("`1` id", id)
+        console.log("`1` connection", connection)
+        if (!connection) throw new Error("Somehow connection is undefined!!!")
+
+        this.connections.delete(id)
+        console.log(
+            "connection", connection
+        )// !@#!@#!@# test
+        this.onCloseCallback && this.onCloseCallback(connection)
+    }
+    forwardMessage(id: number, rawData: ws.RawData) {
+        console.log("this.connections", this.connections)
+        const connection = this.connections.get(id)
+        console.log("id", id)
+        console.log("connection", connection)
+        if (!connection) throw new Error("Somehow connection is undefined!!!")
+
+        const stringifiedData = rawData.toString()
+        this.onMessageCallback && this.onMessageCallback(connection, stringifiedData)
+    }
+
+    /*  */
     onConnection = (...args: Parameters<NonNullable<typeof this.onConnectionCallback>>) => {
         this.onCloseCallback && this.onCloseCallback(...args)
     }
@@ -88,26 +137,46 @@ class World {
         // this.grid=[]
         this.playerList = new Map<number, Player>()
         this.oldTime = Date.now()
+
+        this.networkManager.setConnectionCallback(connection => {
+            const player = new Player(connection)
+            this.addPlayer(player)
+        })
+        this.networkManager.setCloseCallback(connection => {
+            for (const [playerId, player] of this.playerList.entries()) {
+                if (player.connection === connection) {
+                    delete player.connection
+                    this.playerList.delete(playerId)
+                }
+            }
+        })
+        this.networkManager.setMessageCallback((connection, stringifiedData) => {
+            try {
+                const playerControls = JSON.parse(stringifiedData) as Record<typeof MOVEMENT_KEYS[number], boolean> //!@#!@#!@#!@#!@#
+                connection.updateKeyboardInput(playerControls)
+            } catch (err) {
+                throw new Error("ERROR: UNEXPECTED JSON")
+            }
+        })
     }
 
     private _gameTick() {
-        console.log("asd")
         // Update loop
         for (const [id, player] of this.playerList) {
             player.update()
-            console.log(id, "\t", player.position, "\t", player.keyboardInput)
+            console.log(id, "\t", player.position, "\t", player.connection?.keyboardInput)
         }
 
         // Gather data
         const dataToSend: ServerClientTickPayload = []
         for (const [id, player] of this.playerList) {
-            dataToSend.push([player.id, ...player.position])
+            dataToSend.push([player.connectionId, ...player.position])
         }
 
         // Send data
         const stringifiedDataToSend = JSON.stringify(dataToSend)
         for (const [id, player] of this.playerList) {
-            player.ws.send(stringifiedDataToSend)
+            player.connection?.ws.send(stringifiedDataToSend)
         }
     }
 
@@ -129,11 +198,11 @@ class World {
     }
 
     addPlayer(player: Player) {
-        this.playerList.set(player.id, player) //!@#!@# change this
+        this.playerList.set(player.connectionId, player) //!@#!@# change this
     }
 
     removePlayer(player: Player) {
-        this.playerList.delete(player.id)
+        this.playerList.delete(player.connectionId)
     }
 }
 
@@ -143,27 +212,20 @@ class World {
 
 class Player {
     static cumulativePlayers: number = 0        //!@#!@#!@# could potentially cause issues long term with abusers
-    readonly id: number
+    readonly connectionId: number
     static speed: number = 10
-    ws: ws.WebSocket
-    keyboardInput: Record<typeof MOVEMENT_KEYS[number], boolean>
+    connection?: Connection
     position: [number, number]
-    constructor(ws: ws.WebSocket) {
-        this.id = Player.cumulativePlayers++
-        this.ws = ws
-        this.keyboardInput = {} as Record<typeof MOVEMENT_KEYS[number], boolean>
-        MOVEMENT_KEYS.forEach(key => this.keyboardInput[key] = false)
+    constructor(connection: Connection) {
+        this.connectionId = connection.id//Player.cumulativePlayers++
+        this.connection = connection
         this.position = [0, 0]
     }
-    updateKeyboardInput(keyboardInput: Record<typeof MOVEMENT_KEYS[number], boolean>) {
-        console.log(this.keyboardInput)
-        MOVEMENT_KEYS.forEach(k => this.keyboardInput[k] = keyboardInput[k])
-    }
     update() {
-        if (this.keyboardInput["a"]) this.position[0] -= Player.speed
-        if (this.keyboardInput["d"]) this.position[0] += Player.speed
-        if (this.keyboardInput["w"]) this.position[1] += Player.speed
-        if (this.keyboardInput["s"]) this.position[1] -= Player.speed
+        if (this.connection?.keyboardInput["a"]) this.position[0] -= Player.speed
+        if (this.connection?.keyboardInput["d"]) this.position[0] += Player.speed
+        if (this.connection?.keyboardInput["w"]) this.position[1] += Player.speed
+        if (this.connection?.keyboardInput["s"]) this.position[1] -= Player.speed
     }
 }
 
