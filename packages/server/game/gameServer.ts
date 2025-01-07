@@ -5,11 +5,6 @@ import { ServerClientTickPayload } from "@game/shared/types"
 
 
 // ############################################
-// 					CONSTANTS
-// ############################################
-
-
-// ############################################
 // 					GAME SERVER
 // ############################################
 
@@ -18,13 +13,6 @@ export const createGameServer = (wss: ws.Server<typeof ws, typeof http.IncomingM
     // 					INITIALIZATION
     // ############################################
     const world = new World(0, 0)
-
-
-    // ############################################
-    // 					FUNCTIONS
-    // ############################################
-
-
 
     // ############################################
     // 					Handlers
@@ -79,9 +67,6 @@ class World {
         this.oldTime = Date.now()
     }
 
-    // ############################################
-    // 					GAME TICK
-    // ############################################
     private _gameTick() {
         console.log("asd")
         // Update loop
@@ -103,11 +88,6 @@ class World {
         }
     }
 
-
-
-    // ############################################
-    // 					GENERAL LOOP
-    // ############################################
     private _loop = () => {
         const nowTime = Date.now()
         const delta = nowTime - this.oldTime
@@ -118,6 +98,8 @@ class World {
         setImmediate(this._loop)
     }
 
+    // ############################################
+    // 					API
     startLoop() {
         this.oldTime = Date.now()
         this._loop()
@@ -130,7 +112,6 @@ class World {
     removePlayer(player: Player) {
         this.playerList.delete(player.id)
     }
-
 }
 
 // ############################################
