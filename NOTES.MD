@@ -5,7 +5,7 @@
 -   Create a network abstraction to parse network data safely and to clearly separate concerns
 
 # LEARNINGS
--	console.logging will lag firefox browsers. Do NOT console unnecessarily
+-	console.logging will lag firefox browsers, even when dev tools is closed. Do NOT console unnecessarily
 
 ## Information to send to server (client => server)
 
