@@ -3,9 +3,11 @@
 -   use JSON for faster prototyping
 -   identify in the beginning what data will be replicated on the server.
 -   Create a network abstraction to parse network data safely and to clearly separate concerns
+-   Any entity/mob that is collidable will need a unique id and be queryable from an object or map for quick collision checks.
 
 # LEARNINGS
--	console.logging will lag firefox browsers, even when dev tools is closed. Do NOT console unnecessarily
+
+-   console.logging will lag firefox browsers, even when dev tools is closed. Do NOT console unnecessarily
 
 ## Information to send to server (client => server)
 
