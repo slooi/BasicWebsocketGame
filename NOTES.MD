@@ -4,6 +4,7 @@
 -   identify in the beginning what data will be replicated on the server.
 -   Create a network abstraction to parse network data safely and to clearly separate concerns
 -   Any entity/mob that is collidable will need a unique id and be queryable from an object or map for quick collision checks.
+-   Maybe create a factory function which uses generics so i have both generic code, but the factory produces an instance with specific typings for the particular project
 
 # LEARNINGS
 
