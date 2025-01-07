@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "nodemon --watch ../shared  ./server.ts"
+    "dev": "nodemon --watch ../shared --watch ./ ./server.ts"
   },
   "keywords": [],
   "author": "",
