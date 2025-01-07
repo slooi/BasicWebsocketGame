@@ -12,7 +12,8 @@ export const createGameServer = (wss: ws.Server<typeof ws, typeof http.IncomingM
     // ############################################
     // 					INITIALIZATION
     // ############################################
-    const world = new World(0, 0)
+    const networkManager = new NetworkManager()
+    const world = new World(networkManager, 0, 0)
 
     // ############################################
     // 					Handlers
@@ -21,7 +22,6 @@ export const createGameServer = (wss: ws.Server<typeof ws, typeof http.IncomingM
         console.log("websocket connection established")
         const player = new Player(ws)
         world.addPlayer(player)
-        ws.send(player.id)
 
         ws.on("close", () => {
             world.removePlayer(player)
@@ -45,7 +45,28 @@ export const createGameServer = (wss: ws.Server<typeof ws, typeof http.IncomingM
     world.startLoop()
 }
 
-
+class NetworkManager {
+    onConnectionCallback: ((ws: ws.WebSocket) => any) | undefined
+    onCloseCallback: ((ws: ws.WebSocket) => any) | undefined
+    onMessageCallback: ((ws: ws.WebSocket, rawData: ws.RawData) => any) | undefined
+    constructor() {
+        this.onConnectionCallback = undefined
+        this.onCloseCallback = undefined
+        this.onMessageCallback = undefined
+    }
+    onConnection = (...args: Parameters<NonNullable<typeof this.onConnectionCallback>>) => {
+        this.onCloseCallback && this.onCloseCallback(...args)
+    }
+    onClose = (...args: Parameters<NonNullable<typeof this.onCloseCallback>>) => {
+        this.onCloseCallback && this.onCloseCallback(...args)
+    }
+    onMessage = (...args: Parameters<NonNullable<typeof this.onMessageCallback>>) => {
+        this.onMessageCallback && this.onMessageCallback(...args)
+    }
+    setConnectionCallback(cb: typeof this.onConnectionCallback) { this.onConnectionCallback = cb }
+    setCloseCallback(cb: typeof this.onCloseCallback) { this.onCloseCallback = cb }
+    setMessageCallback(cb: typeof this.onMessageCallback) { this.onMessageCallback = cb }
+}
 // ############################################
 // 					World
 // ############################################
@@ -59,7 +80,9 @@ class World {
     height: number
     playerList: Map<number, Player>
     oldTime: number
-    constructor(width: number, height: number) {
+    networkManager: NetworkManager
+    constructor(networkManager: NetworkManager, width: number, height: number) {
+        this.networkManager = networkManager
         this.width = width
         this.height = height
         // this.grid=[]
@@ -106,7 +129,7 @@ class World {
     }
 
     addPlayer(player: Player) {
-        this.playerList.set(player.id, player) //!@#!@# change
+        this.playerList.set(player.id, player) //!@#!@# change this
     }
 
     removePlayer(player: Player) {
