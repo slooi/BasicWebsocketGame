@@ -124,10 +124,13 @@ const createRenderer = (canvas: HTMLCanvasElement) => {
 	// #################################################
 	//				FUNCTIONS	
 	// #################################################
-	const renderWithoutClear = (xyFloat32Array: number[]) => {
-		// console.log("render called!")
-		gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(xyFloat32Array), gl.STATIC_DRAW)
-		gl.drawArrays(gl.POINTS, 0, xyFloat32Array.length / 2)
+
+	const MAX_POINTS = 1000
+	const vertexBuffer = new Float32Array(MAX_POINTS * 2)
+	const renderWithoutClear = (xyArray: number[]) => {
+		vertexBuffer.set(xyArray)
+		gl.bufferData(gl.ARRAY_BUFFER, vertexBuffer, gl.DYNAMIC_DRAW)
+		gl.drawArrays(gl.POINTS, 0, xyArray.length / 2)
 	}
 	const clear = () => {
 		gl.clear(gl.COLOR_BUFFER_BIT)
