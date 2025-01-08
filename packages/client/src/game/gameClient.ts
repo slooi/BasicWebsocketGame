@@ -66,9 +66,9 @@ export const createGameClient = (canvas: HTMLCanvasElement) => {
 		renderer.renderWithoutClear(renderData)
 	}
 
-	let lastDate = Date.now()
+	let lastDate = performance.now()
 	function gameLoop() {
-		const nowDate = Date.now()
+		const nowDate = performance.now()
 		const delta = nowDate - lastDate
 		if (delta > CLIENT_FPS_INTERVAL) {
 			lastDate = nowDate - delta % CLIENT_FPS_INTERVAL

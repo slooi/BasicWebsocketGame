@@ -136,7 +136,7 @@ class World {
         this.height = height
         // this.grid=[]
         this.playerList = new Map<number, Player>()
-        this.oldTime = Date.now()
+        this.oldTime = performance.now()
 
         this.networkManager.setConnectionCallback(connection => {
             const player = new Player(connection)
@@ -181,7 +181,7 @@ class World {
     }
 
     private _loop = () => {
-        const nowTime = Date.now()
+        const nowTime = performance.now()
         const delta = nowTime - this.oldTime
         if (delta > SERVER_FPS_INTERVAL) {
             this._gameTick()
@@ -193,7 +193,7 @@ class World {
     // ############################################
     // 					API
     startLoop() {
-        this.oldTime = Date.now()
+        this.oldTime = performance.now()
         this._loop()
     }
 
