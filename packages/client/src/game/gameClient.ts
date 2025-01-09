@@ -34,6 +34,7 @@ export const createGameClient = (canvas: HTMLCanvasElement) => {
 		const data = JSON.parse(e.data)
 		if (hasReceivedFirstMessage) {
 			serverClientTickPayload = data
+			actualGameLoop()
 			// console.log("serverClientTickPayload", serverClientTickPayload)
 			// console.log("serverClientTickPayload", serverClientTickPayload)
 		} else {
@@ -84,7 +85,7 @@ export const createGameClient = (canvas: HTMLCanvasElement) => {
 		cleanUp,
 		gameLoop: () => {
 			if (requestAnimationFrameId === undefined) {
-				requestAnimationFrameId = requestAnimationFrame(gameLoop)
+				// requestAnimationFrameId = requestAnimationFrame(gameLoop)
 			} else {
 				throw new Error("requestAnimationFrameId is not undefined for some reason!")
 			}
