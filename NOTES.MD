@@ -8,8 +8,8 @@
 
 # Discovered issues
 
--	in commit a3fc6bce28190d9c8b6 (though it exists b4 that probably), found that firefox SOMETIMES gets stuttering character movement... This does not occur in chrome. Refresh page to get chance it might go away. idk what causes it. occurs 50% of time. tested in private mode
--	stutters were caused due to server and client having and offset in their game ticks. The server was sending the data then the client was receiving it SOMETIMES a bit too offset from when the data was sent (with variance), hence the stutters 
+-   in commit a3fc6bce28190d9c8b6 (though it exists b4 that probably), found that firefox SOMETIMES gets stuttering character movement... This does not occur in chrome. Refresh page to get chance it might go away. idk what causes it. occurs 50% of time. tested in private mode
+-   stutters were caused due to server and client having and offset in their game ticks. The server was sending the data then the client was receiving it SOMETIMES a bit too offset from when the data was sent (with variance), hence the stutters. Note, adding interpolation also removed the issue, however as this is a prototype I'm not using interpolation due to increasing code complexity.
 
 # LEARNINGS
 
