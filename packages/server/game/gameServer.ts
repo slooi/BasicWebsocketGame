@@ -15,7 +15,7 @@ export class GameServer {
         // 					INITIALIZATION
         // ############################################
         this.networkManager = new NetworkManager()
-        this.world = new World(this.networkManager, 0, 0)
+        this.world = new World(this.networkManager, 1, 1)
 
         // ############################################
         // 					Handlers

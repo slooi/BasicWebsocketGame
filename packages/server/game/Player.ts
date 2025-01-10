@@ -6,10 +6,10 @@ export class Player {
     static speed: number = 10
     connection?: Connection
     position: [number, number]
-    constructor(connection: Connection) {
+    constructor(connection: Connection, x: number, y: number) {
         this.connectionId = connection.id//Player.cumulativePlayers++
         this.connection = connection
-        this.position = [0, 0]
+        this.position = [x, y]
     }
     update() {
         if (this.connection?.keyboardInput["a"]) this.position[0] -= Player.speed

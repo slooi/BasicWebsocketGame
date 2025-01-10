@@ -14,19 +14,28 @@ export class World {
     */
     width: number
     height: number
+    cellSize: number
     playerList: Map<number, Player>
     oldTime: number
     networkManager: NetworkManager
+    staticGrid: boolean[]
     constructor(networkManager: NetworkManager, width: number, height: number) {
+        if (width <= 0 || height <= 0) throw new Error("both width and height must be more than 0")
         this.networkManager = networkManager
         this.width = width
         this.height = height
-        // this.grid=[]
         this.playerList = new Map<number, Player>()
         this.oldTime = performance.now()
+        this.staticGrid = new Array(this.width * this.height).fill(false)
 
+        this.cellSize = 50
+
+        this.staticGrid[1] = true
+
+
+        // NETWORKING
         this.networkManager.setConnectionCallback(connection => {
-            const player = new Player(connection)
+            const player = new Player(connection, 0, 0)
             this.addPlayer(player)
         })
         this.networkManager.setCloseCallback(connection => {
@@ -55,6 +64,9 @@ export class World {
         }
 
         // Check collisions
+        for (const [id, player] of this.playerList) {
+            if (this.staticGrid[Math.floor(player.position[0] / this.cellSize) * Math.floor(player.position[1] / this.cellSize) * this.width]) player.position[0] = 0
+        }
 
         // Resolve collisions
 
