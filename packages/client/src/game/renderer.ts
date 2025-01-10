@@ -3,7 +3,7 @@ in vec2 a_Position;
 
 void main(){
 	gl_PointSize = 10.0;
-	gl_Position = vec4(a_Position.x/300.0,a_Position.y/300.0,0.0,1.0);
+	gl_Position = vec4(a_Position.x/300.0,-a_Position.y/300.0,0.0,1.0);
 }
 `
 
