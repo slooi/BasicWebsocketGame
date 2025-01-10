@@ -14,7 +14,7 @@ export class Player {
     update() {
         if (this.connection?.keyboardInput["a"]) this.position[0] -= Player.speed
         if (this.connection?.keyboardInput["d"]) this.position[0] += Player.speed
-        if (this.connection?.keyboardInput["w"]) this.position[1] += Player.speed
-        if (this.connection?.keyboardInput["s"]) this.position[1] -= Player.speed
+        if (this.connection?.keyboardInput["w"]) this.position[1] -= Player.speed
+        if (this.connection?.keyboardInput["s"]) this.position[1] += Player.speed
     }
 }
