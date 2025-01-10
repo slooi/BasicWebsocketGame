@@ -7,35 +7,40 @@ import { World } from "./World"
 // ############################################
 // 					GAME SERVER
 // ############################################
+export class GameServer {
+    networkManager: NetworkManager
+    world: World
+    constructor(wss: ws.Server<typeof ws, typeof http.IncomingMessage>) {
+        // ############################################
+        // 					INITIALIZATION
+        // ############################################
+        this.networkManager = new NetworkManager()
+        this.world = new World(this.networkManager, 0, 0)
 
-export const createGameServer = (wss: ws.Server<typeof ws, typeof http.IncomingMessage>) => {
-    // ############################################
-    // 					INITIALIZATION
-    // ############################################
-    const networkManager = new NetworkManager()
-    const world = new World(networkManager, 0, 0)
+        // ############################################
+        // 					Handlers
+        // ############################################
+        const wsConnectionHandler = (ws: ws) => {
+            console.log("websocket connection established")
+            const connectionId = this.networkManager.createConnection(ws)
 
-    // ############################################
-    // 					Handlers
-    // ############################################
-    const wsConnectionHandler = (ws: ws) => {
-        console.log("websocket connection established")
-        const connectionId = networkManager.createConnection(ws)
+            ws.on("close", () => {
+                console.log("websocket connection closed")
+                this.networkManager.removeConnection(connectionId)
+            })
+            ws.on("message", rawData => {
+                console.log("websocket message")
+                this.networkManager.forwardMessage(connectionId, rawData)
+            })
+        }
+        // ############################################
+        // 					Listeners
+        // ############################################
+        wss.on("connection", ws => wsConnectionHandler(ws))
 
-        ws.on("close", () => {
-            console.log("websocket connection closed")
-            networkManager.removeConnection(connectionId)
-        })
-        ws.on("message", rawData => {
-            console.log("websocket message")
-            networkManager.forwardMessage(connectionId, rawData)
-        })
+        // ############################################
+        // 					START
+        // ############################################
+        this.world.startLoop()
     }
-    // ############################################
-    // 					Listeners
-    // ############################################
-    wss.on("connection", ws => wsConnectionHandler(ws))
-
-    world.startLoop()
 }
-

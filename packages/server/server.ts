@@ -1,8 +1,7 @@
 import express from "Express"
 import ws from "ws"
 import http from "http"
-import { createGameServer } from "./game/gameServer"
-
+import { GameServer } from "./game/gameServer"
 
 // ############################################
 // 					CONSTANTS
@@ -33,4 +32,4 @@ server.listen(PORT, () => {
 // ############################################
 // 					GAME SERVER
 // ############################################
-createGameServer(wss)
+const gameServer = new GameServer(wss)
