@@ -2,7 +2,7 @@
 // 					World
 // ############################################
 
-import { MOVEMENT_KEYS, SERVER_FPS_INTERVAL } from "@game/shared/constants"
+import { CELL_SIZE, MOVEMENT_KEYS, SERVER_FPS_INTERVAL } from "@game/shared/constants"
 import { NetworkManager } from "./NetworkManager"
 import { Player } from "./Player"
 import { ServerClientTickPayload } from "@game/shared/types"
@@ -28,7 +28,7 @@ export class World {
         this.oldTime = performance.now()
         this.staticGrid = new Array(this.width * this.height).fill(false)
 
-        this.cellSize = 50
+        this.cellSize = CELL_SIZE
 
         this.staticGrid[1] = true
 
@@ -65,7 +65,10 @@ export class World {
 
         // Check collisions
         for (const [id, player] of this.playerList) {
-            if (this.staticGrid[Math.floor(player.position[0] / this.cellSize) * Math.floor(player.position[1] / this.cellSize) * this.width]) player.position[0] = 0
+            if (player.position[0] >= 0 && player.position[1] >= 0) {
+
+                if (this.staticGrid[Math.floor(player.position[0] / this.cellSize) + Math.floor(player.position[1] / this.cellSize) * this.width]) player.position[0] = 0
+            }
         }
 
         // Resolve collisions
@@ -74,6 +77,17 @@ export class World {
         const dataToSend: ServerClientTickPayload = []
         for (const [id, player] of this.playerList) {
             dataToSend.push([player.connectionId, ...player.position])
+        }
+        this.staticGrid.forEach((isWall, i) => {
+            if (isWall) {
+                const xi = i % this.width
+                const yi = Math.floor(i / this.width)
+                const xPos = xi * this.cellSize
+                const yPos = yi * this.cellSize
+                dataToSend.push(["wall", xPos, yPos])
+            }
+        })
+        for (let i = 0; i < this.staticGrid.length; i++) {
         }
 
         // Send data

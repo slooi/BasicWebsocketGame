@@ -1,7 +1,7 @@
 
 import { createKeyboardHandler } from './keyboardHandler'
 import { createRenderer } from './renderer'
-import { CLIENT_FPS_INTERVAL, MOVEMENT_KEYS } from '@game/shared/constants'
+import { CELL_SIZE, CLIENT_FPS_INTERVAL, MOVEMENT_KEYS } from '@game/shared/constants'
 import { ServerClientTickPayload } from "@game/shared/types"
 
 export const createGameClient = (canvas: HTMLCanvasElement) => {
@@ -62,7 +62,13 @@ export const createGameClient = (canvas: HTMLCanvasElement) => {
 	function actualGameLoop() {
 		renderer.clear()
 		renderData.length = 0
-		serverClientTickPayload.forEach(playerRenderData => renderData.push(playerRenderData[1], playerRenderData[2]))
+		serverClientTickPayload.forEach(playerRenderData => {
+			if (playerRenderData[0] === "wall") {
+				renderData.push(playerRenderData[1], playerRenderData[2])
+			} else {
+				renderData.push(playerRenderData[1], playerRenderData[2])
+			}
+		})
 		// console.log("renderData", renderData)
 		renderer.renderWithoutClear(renderData)
 	}
