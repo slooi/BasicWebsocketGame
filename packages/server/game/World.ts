@@ -15,7 +15,7 @@ export class World {
     width: number
     height: number
     cellSize: number
-    playerList: Map<number, Player>
+    playerList: { [connectionId: number]: Player | undefined }
     oldTime: number
     networkManager: NetworkManager
     staticGrid: boolean[]
@@ -24,7 +24,7 @@ export class World {
         this.networkManager = networkManager
         this.width = width
         this.height = height
-        this.playerList = new Map<number, Player>()
+        this.playerList = {}
         this.oldTime = performance.now()
         this.staticGrid = new Array(this.width * this.height).fill(false)
 
@@ -37,12 +37,15 @@ export class World {
         this.networkManager.setConnectionCallback(connection => {
             const player = new Player(connection, 0, 0)
             this.addPlayer(player)
+            // player.connection?.ws.send(player.connectionId)
+            player.connection?.ws.send(JSON.stringify(this)) //!@#!@# TEMPORARY REMOVE LATER
         })
         this.networkManager.setCloseCallback(connection => {
-            for (const [playerId, player] of this.playerList.entries()) {
-                if (player.connection === connection) {
+            for (const id in this._get_player_ids()) {
+                const player = this.playerList[id]
+                if (player?.connection === connection) {
                     delete player.connection
-                    this.playerList.delete(playerId)
+                    delete this.playerList[id]
                 }
             }
         })
@@ -56,16 +59,23 @@ export class World {
         })
     }
 
+    _get_player_ids() {
+        return Object.keys(this.playerList).map(stringId => new Number(stringId))
+    }
+
     private _gameTick() {
+        const playerIds = this._get_player_ids()
         // Update loop
-        for (const [id, player] of this.playerList) {
-            player.update()
-            console.log(id, "\t", player.position, "\t", player.connection?.keyboardInput)
+        for (const id in playerIds) {
+            const player = this.playerList[id]
+            player?.update()
+            console.log(id, "\t", player?.position, "\t", player?.connection?.keyboardInput)
         }
 
         // Check collisions
-        for (const [id, player] of this.playerList) {
-            if (player.position[0] >= 0 && player.position[1] >= 0) {
+        for (const id in playerIds) {
+            const player = this.playerList[id]
+            if (player && player.position[0] >= 0 && player.position[1] >= 0) {
 
                 if (this.staticGrid[Math.floor(player.position[0] / this.cellSize) + Math.floor(player.position[1] / this.cellSize) * this.width]) player.position[0] = 0
             }
@@ -75,7 +85,9 @@ export class World {
 
         // Gather data
         const dataToSend: ServerClientTickPayload = []
-        for (const [id, player] of this.playerList) {
+        for (const id in playerIds) {
+            const player = this.playerList[id]
+            if (!player) continue
             dataToSend.push([player.connectionId, ...player.position])
         }
         this.staticGrid.forEach((isWall, i) => {
@@ -92,8 +104,9 @@ export class World {
 
         // Send data
         const stringifiedDataToSend = JSON.stringify(dataToSend)
-        for (const [id, player] of this.playerList) {
-            player.connection?.ws.send(stringifiedDataToSend)
+        for (const id in playerIds) {
+            const player = this.playerList[id]
+            player?.connection?.ws.send(stringifiedDataToSend)
         }
     }
 
@@ -115,10 +128,12 @@ export class World {
     }
 
     addPlayer(player: Player) {
-        this.playerList.set(player.connectionId, player) //!@#!@# change this
+        this.playerList[player.connectionId] = player
+        // this.playerList.set(player.connectionId, player) //!@#!@# change this
     }
 
     removePlayer(player: Player) {
-        this.playerList.delete(player.connectionId)
+        delete this.playerList[player.connectionId]
+        // this.playerList.delete(player.connectionId)
     }
 }

@@ -5,12 +5,12 @@ import ws from "ws"
 export class NetworkManager {
     /* This is a high level class which manages everything related to networking such as websocket events and Connections */
     static cumulativeConnections: number = 0
-    connections: Map<number, Connection>
+    connections: { [connectionId: number]: Connection | undefined }
     onConnectionCallback: ((connection: Connection) => any) | undefined
     onCloseCallback: ((connection: Connection) => any) | undefined
     onMessageCallback: ((connection: Connection, stringifiedData: string) => any) | undefined
     constructor() {
-        this.connections = new Map()
+        this.connections = {}
         this.onConnectionCallback = undefined
         this.onCloseCallback = undefined
         this.onMessageCallback = undefined
@@ -20,19 +20,19 @@ export class NetworkManager {
     createConnection(ws: ws.WebSocket) {
         const connectionId = NetworkManager.cumulativeConnections++
         const connection = new Connection(ws, connectionId)
-        this.connections.set(connectionId, connection)
+        this.connections[connectionId] = connection
         console.log("ADDED CONNECTION this.connections", this.connections)
         this.onConnectionCallback && this.onConnectionCallback(connection)
         return connectionId
     }
     removeConnection(id: number) {
         console.log("`1` this.connections", this.connections)
-        const connection = this.connections.get(id)
+        const connection = this.connections[id]
         console.log("`1` id", id)
         console.log("`1` connection", connection)
         if (!connection) throw new Error("Somehow connection is undefined!!!")
 
-        this.connections.delete(id)
+        delete this.connections[id]
         console.log(
             "connection", connection
         )// !@#!@#!@# test
@@ -40,7 +40,7 @@ export class NetworkManager {
     }
     forwardMessage(id: number, rawData: ws.RawData) {
         console.log("this.connections", this.connections)
-        const connection = this.connections.get(id)
+        const connection = this.connections[id]
         console.log("id", id)
         console.log("connection", connection)
         if (!connection) throw new Error("Somehow connection is undefined!!!")
