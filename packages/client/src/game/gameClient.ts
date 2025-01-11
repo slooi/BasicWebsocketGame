@@ -31,7 +31,7 @@ export const createGameClient = (canvas: HTMLCanvasElement) => {
 
 	const wsMessageHandler = (e: MessageEvent<any>) => {
 		// console.log("message", e.data)
-		const data = JSON.parse(e.data)
+		const data = JSON.parse(e.data, reviver)
 		if (hasReceivedFirstMessage) {
 			serverClientTickPayload = data
 			actualGameLoop()
@@ -39,6 +39,7 @@ export const createGameClient = (canvas: HTMLCanvasElement) => {
 			// console.log("serverClientTickPayload", serverClientTickPayload)
 		} else {
 			hasReceivedFirstMessage = true
+			console.log("data", data)
 			playerId = data
 			// console.log("playerId", playerId)
 		}
@@ -97,4 +98,12 @@ export const createGameClient = (canvas: HTMLCanvasElement) => {
 			}
 		}
 	}
+}
+function reviver(key: any, value: any) {
+	if (typeof value === 'object' && value !== null) {
+		if (value.dataType === 'Map') {
+			return new Map(value.value);
+		}
+	}
+	return value;
 }
