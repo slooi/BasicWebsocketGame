@@ -8,17 +8,45 @@
 -   Use replacer and reviver in JSON.stringify and JSON.parse
 
 ```ts
-function replacer(key: any, value: any) {
-	if (value instanceof Map) {
-		return {
-			dataType: "Map",
-			value: Array.from(value.entries()), // or with spread: value: [...value]
-		};
-	} else {
-		return value;
-	}
-}
+function replacerCreator() {
+	const seen = new WeakSet();
+	return (key: any, value: any) => {
+		// Handle Map objects first
+		if (value instanceof Map) {
+			return {
+				dataType: "Map",
+				value: Array.from(value.entries()),
+			};
+		}
 
+		// Handle circular references
+		if (typeof value === "object" && value !== null) {
+			if (seen.has(value)) {
+				return "[Circular]";
+			}
+			seen.add(value);
+		}
+
+		// Filter out problematic properties that often cause circular references
+		if (
+			key === "connection" ||
+			key === "_idleNext" ||
+			key === "_idlePrev" ||
+			key === "parent" ||
+			key === "_events" ||
+			key === "_eventsCount" ||
+			key === "_maxListeners" ||
+			key === "domain" ||
+			key === "_connections" ||
+			key === "parser" ||
+			key === "networkManager"
+		) {
+			return undefined;
+		}
+
+		return value;
+	};
+}
 function reviver(key: any, value: any) {
 	if (typeof value === "object" && value !== null) {
 		if (value.dataType === "Map") {
