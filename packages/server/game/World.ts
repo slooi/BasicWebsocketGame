@@ -92,7 +92,6 @@ export class World {
         }
 
         // Send data
-        // const stringifiedDataToSend = JSON.stringify(dataToSend)
         for (const [id, player] of this.playerList) {
             player.connection?.ws.send(JSON.stringify(this, replacerCreator()))
         }
@@ -116,7 +115,7 @@ export class World {
     }
 
     addPlayer(player: Player) {
-        this.playerList.set(player.connectionId, player) //!@#!@# change this
+        this.playerList.set(player.connectionId, player)
     }
 
     removePlayer(player: Player) {
