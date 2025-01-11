@@ -3,6 +3,7 @@ import { createKeyboardHandler } from './keyboardHandler'
 import { createRenderer } from './renderer'
 import { CELL_SIZE, CLIENT_FPS_INTERVAL, MOVEMENT_KEYS } from '@game/shared/constants'
 import { ServerClientTickPayload } from "@game/shared/types"
+import { World } from "@game/server/game/World"
 
 export const createGameClient = (canvas: HTMLCanvasElement) => {
 	// ############################################
@@ -10,7 +11,7 @@ export const createGameClient = (canvas: HTMLCanvasElement) => {
 	// ############################################
 	// basic
 	let requestAnimationFrameId: number | undefined = undefined
-	let serverClientTickPayload: ServerClientTickPayload = []
+	let serverClientTickPayload: World
 	let playerId: number | undefined = undefined
 	let hasReceivedFirstMessage = false
 	const renderData: number[] = []
@@ -32,6 +33,7 @@ export const createGameClient = (canvas: HTMLCanvasElement) => {
 	const wsMessageHandler = (e: MessageEvent<any>) => {
 		// console.log("message", e.data)
 		const data = JSON.parse(e.data, reviver)
+		// console.log(data)
 		if (hasReceivedFirstMessage) {
 			serverClientTickPayload = data
 			actualGameLoop()
@@ -63,14 +65,9 @@ export const createGameClient = (canvas: HTMLCanvasElement) => {
 	function actualGameLoop() {
 		renderer.clear()
 		renderData.length = 0
-		serverClientTickPayload.forEach(playerRenderData => {
-			if (playerRenderData[0] === "wall") {
-				renderData.push(playerRenderData[1], playerRenderData[2])
-			} else {
-				renderData.push(playerRenderData[1], playerRenderData[2])
-			}
-		})
-		// console.log("renderData", renderData)
+		for (const [id, player] of serverClientTickPayload.playerList.entries()) {
+			renderData.push(player.position[0], player.position[1])
+		}
 		renderer.renderWithoutClear(renderData)
 	}
 

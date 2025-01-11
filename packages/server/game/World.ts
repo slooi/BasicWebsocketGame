@@ -37,7 +37,7 @@ export class World {
         this.networkManager.setConnectionCallback(connection => {
             const player = new Player(connection, 0, 0)
             this.addPlayer(player)
-            player.connection?.ws.send(JSON.stringify(this, replacer))
+            player.connection?.ws.send(JSON.stringify(player.connectionId, replacerCreator()))
         })
         this.networkManager.setCloseCallback(connection => {
             for (const [playerId, player] of this.playerList.entries()) {
@@ -92,9 +92,9 @@ export class World {
         }
 
         // Send data
-        const stringifiedDataToSend = JSON.stringify(dataToSend)
+        // const stringifiedDataToSend = JSON.stringify(dataToSend)
         for (const [id, player] of this.playerList) {
-            player.connection?.ws.send(stringifiedDataToSend)
+            player.connection?.ws.send(JSON.stringify(this, replacerCreator()))
         }
     }
 
@@ -124,15 +124,40 @@ export class World {
     }
 }
 
+function replacerCreator() {
+    const seen = new WeakSet();
+    return (key: any, value: any) => {
+        // Handle Map objects first
+        if (value instanceof Map) {
+            return {
+                dataType: 'Map',
+                value: Array.from(value.entries()),
+            };
+        }
 
+        // Handle circular references
+        if (typeof value === 'object' && value !== null) {
+            if (seen.has(value)) {
+                return '[Circular]';
+            }
+            seen.add(value);
+        }
 
-function replacer(key: any, value: any) {
-    if (value instanceof Map) {
-        return {
-            dataType: 'Map',
-            value: Array.from(value.entries()), // or with spread: value: [...value]
-        };
-    } else {
+        // Filter out problematic properties that often cause circular references
+        if (key === 'connection' ||
+            key === '_idleNext' ||
+            key === '_idlePrev' ||
+            key === 'parent' ||
+            key === '_events' ||
+            key === '_eventsCount' ||
+            key === '_maxListeners' ||
+            key === 'domain' ||
+            key === '_connections' ||
+            key === 'parser' ||
+            key === 'networkManager') {
+            return undefined;
+        }
+
         return value;
-    }
+    };
 }
