@@ -5,6 +5,29 @@
 -   Create a network abstraction to parse network data safely and to clearly separate concerns
 -   Any entity/mob that is collidable will need a unique id and be queryable from an object or map for quick collision checks.
 -   Maybe create a factory function which uses generics so i have both generic code, but the factory produces an instance with specific typings for the particular project
+-	Use replacer and reviver in JSON.stringify and JSON.parse
+```ts
+function replacer(key: any, value: any) {
+    if (value instanceof Map) {
+        return {
+            dataType: 'Map',
+            value: Array.from(value.entries()), // or with spread: value: [...value]
+        };
+    } else {
+        return value;
+    }
+}
+
+function reviver(key: any, value: any) {
+	if (typeof value === 'object' && value !== null) {
+		if (value.dataType === 'Map') {
+			return new Map(value.value);
+		}
+	}
+	return value;
+}
+
+```
 
 # Discovered issues
 
